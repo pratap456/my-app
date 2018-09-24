@@ -1,0 +1,28 @@
+node {
+
+   stage ('git Checkout')
+    {
+      git credentialsId: 'GITHUB',
+      url:'https://github.com/pratap456/my-app'
+    }
+
+   stage ('Maven Build')
+   {
+      def mvnHome = tool name: 'maven', type:'maven'
+      sh "${mvnHome}/bin/mvn clean package"
+   }
+
+   stage ('deploying to TOMCAT - Development team')
+   {
+      sshagent(['tomcat']){
+      sh 'scp -o StrictHostKeyChecking=no target/*.war ec2-user@35.154.237.38:apache-tomcat-8.5.34/webapps/'
+   }}
+
+   stage ('Mail notification')
+      {
+          mail bcc: '', body: 'JENKINS PRACTISE JOB',
+          cc: '', from: '', replyTo: '',
+          subject: 'JENKINS PRACTISE JOB', to: 'prataptangirala1991@gmail.com'
+      }
+
+}
